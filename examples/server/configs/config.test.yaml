@@ -1,0 +1,54 @@
+  db:
+    #username: "postgres"
+    username: ${dbusername}
+    password: "secret"
+    host: "localhos"
+    port: "5432"
+    database: "postgres"
+    schema: "public"
+    maxconns: 10
+    minconns: 1
+    maxconnlifetime: 30
+    maxconnidletime: 10
+    healthcheckperiod: 5
+  info:
+    name: "swagger test"
+    version: "1.0.0"
+    description: "This is a Delivery Service"
+    title: "Delivery Service"
+    email: "raghu@gmail.com"
+    terms: "https://www.indiapost.gov.in/VAS/Pages/Content/disclaimer.aspx"
+  server:  
+    bodylimit: 10485
+  log:
+    level: "info"
+    format: "json"
+    output: "stdout"
+  cron:
+    scheduler:
+      seconds: true                   # to allow seconds based cron jobs expressions (impact all jobs), disabled by default
+      concurrency:
+        limit:
+          enabled: true               # to limit concurrent cron jobs executions, disabled by default
+          max: 3                      # concurrency limit
+          mode: wait                  # "wait" or "reschedule"
+      stop:
+        timeout: 5s                   # scheduler shutdown timeout for graceful cron jobs termination, 10 seconds by default
+    jobs:                             # common cron jobs options
+      execution:
+        start:
+          immediately: true           # to start cron jobs executions immediately (by default)
+          #at: "2024-08-25T11:19:00Z"  # or a given date time (RFC3339)
+          at: "2024-08-25T11:27:00+05:30"
+        limit:
+          enabled: true               # to limit the number of per cron jobs executions, disabled by default
+          max: 3                      # executions limit
+      singleton:
+        enabled: true                 # to execute the cron jobs in singleton mode, disabled by default
+        mode: wait                    # "wait" or "reschedule"
+    log:
+      enabled: true                   # to log cron jobs executions, disabled by default (errors will always be logged).
+      exclude:                        # to exclude by name cron jobs from logging
+        - foo
+        - bar
+  

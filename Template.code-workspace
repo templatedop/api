@@ -1,0 +1,31 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../contextlogger"
+		},
+		{
+			"path": "../../../Downloads/fastschema-develop/fastschema-develop"
+		},
+		{
+			"path": "D:/fstemplate/fstemplateexp/fstemplateexp"
+		},
+		{
+			"path": "../../../Downloads/gswagger-main/gswagger-main"
+		},
+		{
+			"path": "../gswaggerexp"
+		},
+		{
+			"path": "../swaaggerexpkin"
+		},
+		{
+			"path": "../dtm"
+		},
+		{
+			"path": "../apiconfig"
+		}
+	]
+}
