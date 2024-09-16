@@ -12,7 +12,7 @@ var (
 	stackModeConfigured = StackModeBrief
 )
 
-const StackFilterKeyForAPI = "github.com/templatedop/api/errors/perror"
+const StackFilterKeyForAPI = "github.com/templatedop/api/errors"
 
 type StackMode string
 
