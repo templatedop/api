@@ -1,4 +1,4 @@
-module github.com/templatedop/api/common
+module github.com/templatedop/api/modules/common
 
 go 1.22.1
 
