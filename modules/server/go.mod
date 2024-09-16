@@ -2,9 +2,9 @@ module github.com/templatedop/api/modules/server
 
 go 1.22.1
 
-replace github.com/templatedop/api/modules/swagger => C:/Users/acer/OneDrive/Documents/api/modules/swagger
+//replace github.com/templatedop/api/modules/swagger => C:/Users/acer/OneDrive/Documents/api/modules/swagger
 
-replace github.com/templatedop/api/modules/server => C:/Users/acer/OneDrive/Documents/api/modules/server
+//replace github.com/templatedop/api/modules/server => C:/Users/acer/OneDrive/Documents/api/modules/server
 
 require (
 	github.com/go-playground/locales v0.14.1
@@ -20,7 +20,7 @@ require (
 	github.com/templatedop/api/errors v0.0.1
 	github.com/templatedop/api/log v0.0.1
 	github.com/templatedop/api/module v0.0.1
-	github.com/templatedop/api/modules/swagger v0.0.0-00010101000000-000000000000
+	github.com/templatedop/api/modules/swagger v0.0.1
 	github.com/templatedop/api/util v0.0.1
 	github.com/templatedop/universal-translator-master v0.0.0-20240227080223-5b6b6a60935e
 	go.uber.org/fx v1.22.2
