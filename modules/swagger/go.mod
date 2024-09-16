@@ -2,7 +2,7 @@ module github.com/templatedop/api/modules/swagger
 
 go 1.22.1
 
-replace github.com/templatedop/api/modules/swagger => C:/Users/acer/OneDrive/Documents/api/modules/swagger
+//replace github.com/templatedop/api/modules/swagger => C:/Users/acer/OneDrive/Documents/api/modules/swagger
 
 //replace github.com/templatedop/api/modules/server => C:/Users/acer/OneDrive/Documents/api/modules/server
 
@@ -12,7 +12,7 @@ require (
 	github.com/templatedop/api/config v0.0.1
 	github.com/templatedop/api/diutil v0.0.1
 	github.com/templatedop/api/module v0.0.1
-	github.com/templatedop/api/modules/server v0.0.1
+	github.com/templatedop/api/modules/server v0.0.2
 	github.com/templatedop/api/util v0.0.1
 )
 
