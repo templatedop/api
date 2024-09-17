@@ -28,7 +28,7 @@ func buildDefinitions(eds []EndpointDef) m {
 
 		buildModelDefinition(defs, ed.RequestType, true)
 		buildModelDefinition(defs, ed.ResponseType, false)
-		buildModelDefinition(defs, reflect.TypeOf(response.Errors{}), false)
+		buildModelDefinition(defs, reflect.TypeOf(response.ResponseError{}), false)
 	}
 
 	return defs

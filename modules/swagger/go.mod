@@ -12,7 +12,7 @@ require (
 	github.com/templatedop/api/config v0.0.1
 	github.com/templatedop/api/diutil v0.0.1
 	github.com/templatedop/api/module v0.0.1
-	github.com/templatedop/api/modules/server v0.0.3
+	github.com/templatedop/api/modules/server v0.0.4
 	github.com/templatedop/api/util v0.0.1
 )
 
