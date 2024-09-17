@@ -45,6 +45,13 @@ func Error(msg string, Errors []Errors, fieldErrs ...validation.FieldError) Resp
 	}
 }
 
+type ResponseError struct {
+    Success          bool                `json:"success"`
+    Message          string              `json:"message,omitempty"`    
+    ValidationErrors []validation.FieldError `json:"validationErrors,omitempty"`
+    Errors           []Errors            `json:"errors,omitempty"`
+}
+
 // type ValidationError struct {
 // 	Success          bool                    `json:"success"`
 // 	Message          string                  `json:"message,omitempty"`
