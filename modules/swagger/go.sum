@@ -105,8 +105,8 @@ github.com/templatedop/api/diutil v0.0.1 h1:fOFyVnDEYivVIm/60VKMJ36enMRqWNkHsxHD
 github.com/templatedop/api/diutil v0.0.1/go.mod h1:1PQ1hFMpcz5J7JaGMbY8u7RvTn4B2YY/9V9wyIaTPLo=
 github.com/templatedop/api/module v0.0.1 h1:GiaGPV2Dp4SYWB4D3wNCEVFv6DCn7Y2qcCQIc9WNlP4=
 github.com/templatedop/api/module v0.0.1/go.mod h1:rAorOJ/mLuHwKnUkliJ2KXWvEUrr5UQG0yUL7ZsI7NU=
-github.com/templatedop/api/modules/server v0.0.2 h1:BY+xwjYIyngcC3+do78REsAJssKbGxR4A3u9qxj3QUo=
-github.com/templatedop/api/modules/server v0.0.2/go.mod h1:91u11pK5GjBBqfRNGg36rao9diwmcO3A2yOSjjYFaLg=
+github.com/templatedop/api/modules/server v0.0.3 h1:wpald4cXegRxjqzpqNSaiHeKx4Eo7fJbUTldlkS+ScY=
+github.com/templatedop/api/modules/server v0.0.3/go.mod h1:91u11pK5GjBBqfRNGg36rao9diwmcO3A2yOSjjYFaLg=
 github.com/templatedop/api/util v0.0.1 h1:glpa7lmmvjpuSuJe0+MINcW/JpmLv3+TkSFClbfE+Tg=
 github.com/templatedop/api/util v0.0.1/go.mod h1:mQmmm4Z9SNbL1budEXldsHXgPMFmZ/cPB/L4xorjDM0=
 github.com/templatedop/universal-translator-master v0.0.0-20240227080223-5b6b6a60935e h1:hPmwWbZAdQ6Zz8ScvOPgb9vwKDBisBTl/7xqkLUDU+8=

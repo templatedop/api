@@ -39,7 +39,7 @@ func buildPaths(eds []EndpointDef) m {
 			},
 			"400": m{
 				"description": "Invalid input",
-				"schema":      getPropertyField(reflect.TypeOf(response.ValidationError{})),
+				"schema":      getPropertyField(reflect.TypeOf(response.Errors{})),
 			},
 		}
 
