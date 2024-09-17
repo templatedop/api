@@ -36,7 +36,7 @@ func ErrHandler(log *log.Logger) fiber.ErrorHandler {
 						{Code: status, Message: strconv.Itoa(perror.Code(e).Code()) + "-" + perror.Code(e).Message()},
 						{Code: parsedCode, Message: e.Error()},
 					}
-					return c.Status(status).JSON(response.ErrorWithErrors(gerr.Current().Error(), ers))
+					return c.Status(status).JSON(response.Error(gerr.Current().Error(), ers))
 				}
 
 			}
@@ -46,7 +46,7 @@ func ErrHandler(log *log.Logger) fiber.ErrorHandler {
 				{Code: status, Message: strconv.Itoa(perror.Code(pe).Code()) + "-" + perror.Code(pe).Message()},
 			}
 
-			return c.Status(status).JSON(response.ErrorWithErrors(gerr.Current().Error(), ers))
+			return c.Status(status).JSON(response.Error(gerr.Current().Error(), ers))
 
 		} else {
 
@@ -55,7 +55,7 @@ func ErrHandler(log *log.Logger) fiber.ErrorHandler {
 
 		return c.
 			Status(getCodeFromErr(err)).
-			JSON(response.Error(err.Error(), getValidationErrs(err)...))
+			JSON(response.Error(err.Error(), nil, getValidationErrs(err)...))
 	}
 }
 

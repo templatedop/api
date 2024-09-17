@@ -20,7 +20,7 @@ type Response[T any] struct {
 
 	// Error fields
 	Message          string                  `json:"message,omitempty"`
-	ValidationErrors []validation.FieldError `json:"APIErrors,omitempty"`
+	ValidationErrors []validation.FieldError `json:"validationErrors,omitempty"`
 	Errors           []Errors                `json:"errors,omitempty"`
 }
 
@@ -36,24 +36,25 @@ func Success(data any) Response[any] {
 	}
 }
 
-func Error(msg string, fieldErrs ...validation.FieldError) Response[any] {
+func Error(msg string, Errors []Errors, fieldErrs ...validation.FieldError) Response[any] {
 	return Response[any]{
 		Success:          false,
 		Message:          msg,
 		ValidationErrors: fieldErrs,
+		Errors:           Errors,
 	}
 }
 
-type ValidationError struct {
-	Success          bool                    `json:"success"`
-	Message          string                  `json:"message,omitempty"`
-	ValidationErrors []validation.FieldError `json:"APIErrors,omitempty"`
-}
+// type ValidationError struct {
+// 	Success          bool                    `json:"success"`
+// 	Message          string                  `json:"message,omitempty"`
+// 	ValidationErrors []validation.FieldError `json:"Errors,omitempty"`
+// }
 
-func ErrorWithErrors(msg string, errs []Errors) Response[any] {
-	return Response[any]{
-		Success: false,
-		Message: msg,
-		Errors:  errs,
-	}
-}
+// func ErrorWithErrors(msg string, errs []Errors) Response[any] {
+// 	return Response[any]{
+// 		Success: false,
+// 		Message: msg,
+// 		Errors:  errs,
+// 	}
+// }

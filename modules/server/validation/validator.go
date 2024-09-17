@@ -24,6 +24,7 @@ type (
 	Error struct {
 		msg  string
 		errs []FieldError
+		
 	}
 )
 
@@ -518,7 +519,7 @@ func ValidateStruct(s interface{}) error {
 
 			tag := e.Tag()
 			if _, ok := validationMessages[tag]; ok {
-				fmt.Println("coming inside validation messages")
+				//fmt.Println("coming inside validation messages")
 				fieldErrors = append(fieldErrors, FieldError{
 					FailedField: e.Field(),
 					//Tag:         e.Tag(),

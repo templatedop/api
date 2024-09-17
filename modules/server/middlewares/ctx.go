@@ -57,7 +57,7 @@ func ContextBinder(l *log.Logger) fiber.Handler {
 			ers := []response.Errors{
 				{Code: 400, Message: strconv.Itoa(perror.Code(perr).Code()) + "-" + perror.Code(perr).Message()},
 			}
-			return c.Status(400).JSON(response.ErrorWithErrors(perr.Error(), ers))
+			return c.Status(400).JSON(response.Error(perr.Error(), ers))
 			// return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			// 	"error": err.Error(),
 			// })
