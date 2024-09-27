@@ -44,11 +44,11 @@ func generatejson(v3 *openapi3.T) {
 }
 
 func replaceDataType(container *gabs.Container, targetType, newType string) {
-	fmt.Println("container details: ", container)
+	//fmt.Println("container details: ", container)
 
-	if container.Exists("schemas") {
-		fmt.Println("schema is: ", container.Path("schema"))
-	}
+	// if container.Exists("schemas") {
+	// 	fmt.Println("schema is: ", container.Path("schema"))
+	// }
 
 	children, _ := container.ChildrenMap()
 
@@ -98,7 +98,7 @@ func resolveSchema(refPath string, root *gabs.Container) *gabs.Container {
 func wrap200Responses(container *gabs.Container) {
 	paths := container.Path("paths")
 	if paths == nil {
-		fmt.Println("No paths found in the Swagger document.")
+		//fmt.Println("No paths found in the Swagger document.")
 		return
 	}
 
