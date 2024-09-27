@@ -9,16 +9,14 @@ import (
 )
 
 
-
 // Has to be removed
-func New(text string) error {
+func new(text string) error {
 	return &Error{
 		stack: callers(),
 		text:  text,
 		code:  ecode.CodeNil,
 	}
 }
-
 
 func NewCode(code ecode.Code, text ...string) error {
 	return &Error{

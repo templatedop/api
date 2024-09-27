@@ -14,6 +14,10 @@ var (
 
 const StackFilterKeyForAPI = "github.com/templatedop/api/errors"
 
+
+
+
+
 type StackMode string
 
 const (

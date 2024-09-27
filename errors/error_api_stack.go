@@ -83,7 +83,7 @@ func HasError(err, target error) bool {
 func callers(skip ...int) stack {
 	var (
 		pcs [maxStackDepth]uintptr
-		n   = 3
+		n   = 2
 	)
 	if len(skip) > 0 {
 		n += skip[0]
