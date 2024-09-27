@@ -36,6 +36,7 @@ func WithLogger(parent context.Context, l *Logger) context.Context {
 
 func (l *Logger) CallerIncluded() *Logger {
 	lo := l.logger.With().CallerWithSkipFrameCount(zerolog.CallerSkipFrameCount + Frame).Logger()
+
 	return &Logger{&lo}
 }
 
@@ -75,20 +76,22 @@ func (l *Logger) Fatal(message interface{}, args ...interface{}) {
 }
 
 func (l *Logger) msg(level zerolog.Level, message interface{}, args ...interface{}) {
-	lw := l.CallerIncluded()
+
 	switch msg := message.(type) {
 	case error:
-		lw.log1(level, msg.Error(), args...)
+
+		l.log1(level, msg.Error(), args...)
 	case string:
-		lw.log1(level, msg, args...)
+		l.log1(level, msg, args...)
 	default:
-		lw.log1(zerolog.InfoLevel, fmt.Sprintf("%s message %v has unknown type %v", level, message, msg), args...)
+		l.log1(zerolog.InfoLevel, fmt.Sprintf("%s message %v has unknown type %v", level, message, msg), args...)
 	}
 }
 
 func (l *Logger) log1(level zerolog.Level, message string, args ...interface{}) {
+	lw := l.CallerIncluded()
+	loggers := lw.logger.WithLevel(level)
 
-	loggers := l.logger.WithLevel(level)
 	if len(args) == 0 {
 		loggers.Msg(message)
 	} else {
