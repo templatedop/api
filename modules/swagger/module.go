@@ -11,6 +11,7 @@ func Module() *module.Module {
 		buildDocs,
 		fiberWrapper,
 	)
+	m.Invoke(generatejson)
 
 	return m
 }

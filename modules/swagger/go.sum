@@ -1,3 +1,5 @@
+github.com/Jeffail/gabs v1.4.0 h1://5fYRRTq1edjfIrQGvdkcd22pkYUrHZ5YC/H2GJVAo=
+github.com/Jeffail/gabs v1.4.0/go.mod h1:6xMvQMK4k33lb7GUUpaAPh6nKMmemQeg5d4gn7/bOXc=
 github.com/andybalholm/brotli v1.0.5 h1:8uQZIdzKmjc/iuPu7O2ioW48L81FgatrcpfFmiq/cCs=
 github.com/andybalholm/brotli v1.0.5/go.mod h1:fO7iG3H7G2nSZ7m0zPUDn85XEX2GTukHGRSepvi9Eig=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -105,8 +107,8 @@ github.com/templatedop/api/diutil v0.0.1 h1:fOFyVnDEYivVIm/60VKMJ36enMRqWNkHsxHD
 github.com/templatedop/api/diutil v0.0.1/go.mod h1:1PQ1hFMpcz5J7JaGMbY8u7RvTn4B2YY/9V9wyIaTPLo=
 github.com/templatedop/api/module v0.0.1 h1:GiaGPV2Dp4SYWB4D3wNCEVFv6DCn7Y2qcCQIc9WNlP4=
 github.com/templatedop/api/module v0.0.1/go.mod h1:rAorOJ/mLuHwKnUkliJ2KXWvEUrr5UQG0yUL7ZsI7NU=
-github.com/templatedop/api/modules/server v0.0.4 h1:qOEw8df/l8zHrkzpjwknnlj7pMs8R3UUhk6WUYoK9Q0=
-github.com/templatedop/api/modules/server v0.0.4/go.mod h1:91u11pK5GjBBqfRNGg36rao9diwmcO3A2yOSjjYFaLg=
+github.com/templatedop/api/modules/server v0.0.5 h1:DOzszOHP2hSOiJSVP6JbGkLO18ENsEBKf4BDRsCGcLc=
+github.com/templatedop/api/modules/server v0.0.5/go.mod h1:91u11pK5GjBBqfRNGg36rao9diwmcO3A2yOSjjYFaLg=
 github.com/templatedop/api/util v0.0.1 h1:glpa7lmmvjpuSuJe0+MINcW/JpmLv3+TkSFClbfE+Tg=
 github.com/templatedop/api/util v0.0.1/go.mod h1:mQmmm4Z9SNbL1budEXldsHXgPMFmZ/cPB/L4xorjDM0=
 github.com/templatedop/universal-translator-master v0.0.0-20240227080223-5b6b6a60935e h1:hPmwWbZAdQ6Zz8ScvOPgb9vwKDBisBTl/7xqkLUDU+8=

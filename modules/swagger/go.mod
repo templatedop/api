@@ -12,11 +12,12 @@ require (
 	github.com/templatedop/api/config v0.0.1
 	github.com/templatedop/api/diutil v0.0.1
 	github.com/templatedop/api/module v0.0.1
-	github.com/templatedop/api/modules/server v0.0.4
+	github.com/templatedop/api/modules/server v0.0.5
 	github.com/templatedop/api/util v0.0.1
 )
 
 require (
+	github.com/Jeffail/gabs v1.4.0
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect

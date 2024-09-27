@@ -1,11 +1,10 @@
 package swagger
 
 import (
-	//"database/sql"
 	"encoding/json"
 	"fmt"
+	"os"
 
-	//"os"
 	"reflect"
 	"regexp"
 	"strings"
@@ -31,7 +30,6 @@ const (
 	refKey = "$ref"
 )
 
-// func buildDocs(eds []EndpointDef, cfg *config.Config) Docs {
 func buildDocs(eds []EndpointDef, cfg *config.Config) *openapi3.T {
 	dj := baseJSON(cfg)
 	dj["definitions"] = buildDefinitions(eds)
@@ -40,22 +38,40 @@ func buildDocs(eds []EndpointDef, cfg *config.Config) *openapi3.T {
 	var v2Doc openapi2.T
 	data, err := json.Marshal(Docs(dj))
 	if err != nil {
-		//fmt.Println("Error marshaling Docs to JSON:", err)
 		return nil
 	}
 
 	if err := json.Unmarshal(data, &v2Doc); err != nil {
-		//fmt.Println("Error unmarshaling JSON to OpenAPI v2 document:", err)
 		return nil
 	}
 	v3Doc, err := openapi2conv.ToV3(&v2Doc)
 	if err != nil {
-		//fmt.Println("Error converting to OpenAPI v3:", err)
 		return nil
 	}
 
+	storeV3DocToFile(v3Doc)
 	return v3Doc
+}
+func storeV3DocToFile(v3Doc *openapi3.T) error {
+	v3DocJSON, err := json.MarshalIndent(v3Doc, "", "  ")
+	if err != nil {
+		return fmt.Errorf("error marshaling v3Doc to JSON: %w", err)
+	}
 
+	if _, err := os.Stat("docs"); os.IsNotExist(err) {
+		os.Mkdir("docs", os.ModePerm)
+	}
+
+	file, err := os.Create("./docs/v3Doc.json")
+	if err != nil {
+		return fmt.Errorf("error creating file: %w", err)
+	}
+	defer file.Close()
+
+	if _, err := file.Write(v3DocJSON); err != nil {
+		return fmt.Errorf("error writing to file: %w", err)
+	}
+	return nil
 }
 
 var pathRegexp = regexp.MustCompile(`(\:[A-Za-z0-9_]*)`)
@@ -74,7 +90,6 @@ func baseJSON(cfg *config.Config) m {
 	cfg.SetDefault("info.terms", "http://swagger.io/terms/")
 	cfg.SetDefault("info.email", "")
 	of := cfg.Of("info")
-	//fmt.Println("info value:", of.GetString("version"))
 	return m{
 		"swagger": "2.0",
 		"info": m{
@@ -97,8 +112,6 @@ func baseJSON(cfg *config.Config) m {
 }
 
 func withDefinitionPrefix(s string) string {
-	//fmt.Println("withDefinitionPrefix: ", s)
-
 	return fmt.Sprintf("#/definitions/%s", s)
 }
 
@@ -110,7 +123,6 @@ func getPrimitiveType(t reflect.Type) m {
 		}
 	}
 
-
 	/* Added for other types compatability*/
 	//added for uint64
 	if kp := t.Kind().String(); strings.HasPrefix(kp, "uint64") {
@@ -120,21 +132,9 @@ func getPrimitiveType(t reflect.Type) m {
 		}
 	}
 
-	// if kp := t.Kind().String(); strings.HasPrefix(kp, "NullString") {
-	// 	return m{
-	// 		"type":   "string",
-	// 		"format": kp,
-	// 	}
-	// }
-
 	//Add NullString
 	k := t.Kind().String()
-	// if t == reflect.TypeOf(sql.NullString{}) {
-	// 	k = "string"
-	// }
 
-	/* Added for other types compatability*/
-	
 	if t.Kind() == reflect.Bool {
 		k = "boolean"
 	}
@@ -146,17 +146,9 @@ func getPrimitiveType(t reflect.Type) m {
 
 func getPropertyField(t reflect.Type) m {
 
-	//This is for examples....
-	//fmt.Println("getPropertyField: ", t)
 	if t == typlect.TypeNoParam {
 		return m{"type": "string"}
 	}
-	/* This is for mapping special types */
-	// if t == reflect.TypeOf(sql.NullString{}) {
-
-	// 	return m{"type": "string"}
-	// }
-	/* This is for mapping special types */
 
 	if t.Kind() == reflect.Pointer {
 		t = t.Elem()
@@ -168,7 +160,6 @@ func getPropertyField(t reflect.Type) m {
 	}
 
 	if t.Kind() == reflect.Struct {
-		//fmt.Println("t.Kind() == reflect.Struct: ", t)
 		return m{
 			refKey: withDefinitionPrefix(getNameFromType(t)),
 		}

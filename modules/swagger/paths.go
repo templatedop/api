@@ -34,14 +34,22 @@ func buildPaths(eds []EndpointDef) m {
 
 		desc["responses"] = m{
 			"200": m{
-				"description": "successful operation",
+				"description": "Successful Operation",
 				"schema":      getPropertyField(ed.ResponseType),
 			},
 			"400": m{
-				"description": "Invalid input",
+				"description": "Non Succesful Operation",
 				"schema":      getPropertyField(reflect.TypeOf(response.ResponseError{})),
 			},
 		}
+
+		// desc["responses"] = m{
+		// 	"200": m{
+		// 		"description": "successful operation",
+		// 		"schema":      mergedSchema,
+		// 	},
+		// 	//"schema":      mergedSchema,
+		// }
 
 		meth := strings.ToLower(ed.Method)
 		swagp := toSwaggerPath(ed.Endpoint)
