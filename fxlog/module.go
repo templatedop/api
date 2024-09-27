@@ -28,16 +28,16 @@ type FxLogParam struct {
 }
 
 func NewFxLogger(p FxLogParam) (*log.Logger, error) {
+
 	var level zerolog.Level
 	if p.Config.AppDebug() {
 		level = zerolog.DebugLevel
 	} else {
-		level = log.FetchLogLevel(p.Config.GetString("modules.log.level"))
+		level = log.FetchLogLevel(p.Config.GetString("log.level"))
 	}
-
 	var outputWriter io.Writer
 
-	switch log.FetchLogOutputWriter(p.Config.GetString("modules.log.output")) {
+	switch log.FetchLogOutputWriter(p.Config.GetString("log.output")) {
 	case log.NoopOutputWriter:
 		outputWriter = io.Discard
 	case log.ConsoleOutputWriter:
