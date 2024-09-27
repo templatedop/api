@@ -134,19 +134,19 @@ func (c *Config) GetEnvVar(envVar string) string {
 }
 
 func (c *Config) AppName() string {
-	return c.GetString("app.name")
+	return c.GetString("info.name")
 }
 
 func (c *Config) AppEnv() string {
-	return c.GetString("app.env")
+	return c.GetString("info.env")
 }
 
 func (c *Config) AppVersion() string {
-	return c.GetString("app.version")
+	return c.GetString("info.version")
 }
 
 func (c *Config) AppDebug() bool {
-	return c.GetBool("app.debug")
+	return c.GetBool("info.debug")
 }
 
 func (c *Config) IsProdEnv() bool {
@@ -160,3 +160,4 @@ func (c *Config) IsDevEnv() bool {
 func (c *Config) IsTestEnv() bool {
 	return c.AppEnv() == AppEnvTest
 }
+

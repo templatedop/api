@@ -63,7 +63,7 @@ func (f *DefaultConfigFactory) Create(options ...ConfigOption) (*Config, error) 
 }
 
 func (f *DefaultConfigFactory) setDefaults(v *viper.Viper) {
-	v.SetDefault("app.name", DefaultAppName)
-	v.SetDefault("app.version", DefaultAppVersion)
-	v.SetDefault("app.debug", false)
+	v.SetDefault("info.name", DefaultAppName)
+	v.SetDefault("info.version", DefaultAppVersion)
+	v.SetDefault("info.debug", false)
 }
