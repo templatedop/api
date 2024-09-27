@@ -21,7 +21,7 @@ type App struct {
 	hooks    []module.ProvideHook
 	modules  []*module.Module
 }
-
+///
 func New() *App {
 	app := &App{
 		injector: di.NewInjector(),
