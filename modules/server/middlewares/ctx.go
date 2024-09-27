@@ -29,21 +29,10 @@ func createContext(c *fiber.Ctx, l *log.Logger) (context.Context, error) {
 	ctx = context.WithValue(ctx, LoggerContextKey, l)
 
 	if reqID == "" {
-		// perr:=perror.NewCode(ecode.CodeNotAuthorized, "Request ID not found")
-		// 	ers := []response.Errors{
-		// 		{Code: 400, Message: strconv.Itoa(perror.Code(perr).Code()) + "-" + perror.Code(perr).Message()},
-		// 	}
-
-		// 	// response.ErrorWithErrors(perr.Error(), ers)
-
-		// 	 return c.Status(400).JSON(response.ErrorWithErrors(perr.Error(), ers))
-		//return nil, perror.NewCode(ecode.CodeNotAuthorized, "Request ID not found")
-		//return nil,errors.New("Request ID not found")
 		reqID = uuid.NewString()
 		c.Set("X-Request-ID", reqID)
 		ctx = context.WithValue(ctx, RequestIDContextKey, reqID)
 	} else {
-		//ctx = context.WithValue(ctx, LoggerContextKey, l)
 		ctx = context.WithValue(ctx, RequestIDContextKey, reqID)
 	}
 	return ctx, nil
@@ -58,9 +47,7 @@ func ContextBinder(l *log.Logger) fiber.Handler {
 				{Code: 400, Message: strconv.Itoa(perror.Code(perr).Code()) + "-" + perror.Code(perr).Message()},
 			}
 			return c.Status(400).JSON(response.Error(perr.Error(), ers))
-			// return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			// 	"error": err.Error(),
-			// })
+			
 		}
 		c.SetUserContext(ctx)
 

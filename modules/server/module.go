@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	asHandler      = as.Interface[handler.Handler]("servercontrollers")
+	asHandler         = as.Interface[handler.Handler]("servercontrollers")
 	asMiddleware      = as.Struct[fiber.Handler]("servermiddleware")
 	asValidationRule  = as.Interface[validation.Rule]("validationrules")
 	asFiberAppWrapper = as.Struct[common.FiberAppWrapper]("fiberappwrappers")
@@ -23,6 +23,7 @@ func Module() *module.Module {
 	m := module.New("server")
 
 	m.Provide(
+		
 		// create registries
 		asHandler.Handler(parseControllers),
 
@@ -44,7 +45,7 @@ func Module() *module.Module {
 	)
 
 	m.Invoke(
-		
+
 		validation.Init,
 		startServer,
 	)

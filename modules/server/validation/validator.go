@@ -16,15 +16,15 @@ import (
 type (
 	FieldError struct {
 		FailedField string `json:"field"`
-		//Tag         string      `json:"tag"`
-		//Value       interface{} `json:"value"`
-		Message string `json:"message"`
+		Tag         string `json:"tag"`
+		//Param string `json:"param"`
+		Value   interface{} `json:"value"`
+		Message string      `json:"message"`
 	}
 
 	Error struct {
 		msg  string
 		errs []FieldError
-		
 	}
 )
 
@@ -473,10 +473,8 @@ func Init(rules []Rule) {
 	uni = ut.New(eng, eng)
 	trans, _ = uni.GetTranslator("en")
 
-	// Register default translations for the validator
 	if err := en_translations.RegisterDefaultTranslations(validate, trans); err != nil {
 		panic(fmt.Sprintf("Failed to register translations: %v", err))
-		//log.Fatalf("Failed to register translations: %v", err)
 	}
 	validate.RegisterTagNameFunc(getStructFieldName)
 
@@ -490,7 +488,6 @@ func Init(rules []Rule) {
 
 func ValidateStruct(s interface{}) error {
 
-	//fmt.Println("calling validate struct")
 	if validate == nil {
 		panic("validator not initialized")
 	}
@@ -498,7 +495,6 @@ func ValidateStruct(s interface{}) error {
 	if trans == nil {
 		panic("translator not initialized")
 	}
-	//var fieldErrors validation.FieldErrors
 	err := validate.Struct(s)
 	if err != nil {
 		var fieldErrors []FieldError
@@ -519,20 +515,20 @@ func ValidateStruct(s interface{}) error {
 
 			tag := e.Tag()
 			if _, ok := validationMessages[tag]; ok {
-				//fmt.Println("coming inside validation messages")
 				fieldErrors = append(fieldErrors, FieldError{
 					FailedField: e.Field(),
-					//Tag:         e.Tag(),
-					//Value:       e.Value(),
+
+					Tag:     e.Param(),
+					Value:   e.Value(),
 					Message: getTagMessage(e),
 				})
 
 			} else {
 				fieldErrors = append(fieldErrors, FieldError{
 					FailedField: e.Field(),
-					//Tag:         e.Tag(),
-					//Value:       e.Value(),
-					Message: e.Translate(trans),
+					Tag:         e.Tag(),
+					Value:       e.Value(),
+					Message:     e.Translate(trans),
 				})
 
 			}
@@ -543,10 +539,6 @@ func ValidateStruct(s interface{}) error {
 			msg:  "validation error",
 			errs: fieldErrors,
 		}
-
-		//err := response.Error("validation error", fieldErrors...)
-
-		//return err
 
 	}
 	return nil

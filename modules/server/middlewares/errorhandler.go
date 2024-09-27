@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"context"
 	"errors"
 	"strconv"
 
@@ -12,51 +13,93 @@ import (
 	"github.com/templatedop/api/log"
 	"github.com/templatedop/api/modules/server/response"
 	"github.com/templatedop/api/modules/server/validation"
-	//"go.uber.org/zap"
 )
 
-type ErrorResponse struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Detail  interface{} `json:"detail,omitempty"`
-	Stack   string      `json:"stack,omitempty"` // Optionally include stack traces for debugging
+
+
+func unwrapError(err error) error {
+	for {
+		unwrappedErr := perror.Unwrap(err)
+		if unwrappedErr == nil {
+			return err
+		}
+		err = unwrappedErr
+	}
 }
 
 func ErrHandler(log *log.Logger) fiber.ErrorHandler {
 	return func(c *fiber.Ctx, err error) error {
-		log.ToZerolog().Info().Err(err).Msg("Error handler log")
-		log.Info("Error handler log")
 
+		cc := c.UserContext()
+		RequestID := cc.Value(RequestIDContextKey).(string)
+		log.ToZerolog().Error().Str("RequestID:", RequestID).Str("Stack", perror.Stack(err)).Msg("Error handler stack")
+		if errors.Is(err, context.DeadlineExceeded) {
+			return c.Status(fiber.StatusGatewayTimeout).JSON(response.Error("Request Timedout", nil))
+		}
 		if gerr, ok := err.(*perror.Error); ok {
-			if unwrappedErr := perror.Unwrap(gerr); unwrappedErr != nil {
-				if pgErr, ok := unwrappedErr.(*pgconn.PgError); ok {
-					status, e := handledbError(pgErr.Code)
-					parsedCode, _ := strconv.Atoi(pgErr.Code)
-					ers := []response.Errors{
-						{Code: status, Message: strconv.Itoa(perror.Code(e).Code()) + "-" + perror.Code(e).Message()},
-						{Code: parsedCode, Message: e.Error()},
-					}
-					return c.Status(status).JSON(response.Error(gerr.Current().Error(), ers))
+
+			unwrappedErr := unwrapError(gerr)
+
+			if pgErr, ok := unwrappedErr.(*pgconn.PgError); ok {
+				status, e := handledbError(pgErr.Code)
+				parsedCode, _ := strconv.Atoi(pgErr.Code)
+				ers := []response.Errors{
+					{Code: perror.Code(gerr).Code(), Message: perror.Code(gerr).Message()},
+					{Code: parsedCode, Message: e.Error()},
 				}
+				return c.Status(status).JSON(response.Error(gerr.Current().Error(), ers))
 
 			}
-			status, pe := getperrorcode(gerr)
+			if unwrappedErr != nil {
+				return perrnondb(c, unwrappedErr.(*perror.Error))
 
-			ers := []response.Errors{
-				{Code: status, Message: strconv.Itoa(perror.Code(pe).Code()) + "-" + perror.Code(pe).Message()},
 			}
 
-			return c.Status(status).JSON(response.Error(gerr.Current().Error(), ers))
+			return perrnondb(c, gerr)
 
-		} else {
-
-			log.ToZerolog().Info().Msg("Unable to parse perror")
 		}
 
-		return c.
-			Status(getCodeFromErr(err)).
-			JSON(response.Error(err.Error(), nil, getValidationErrs(err)...))
+		if verr, ok := err.(*validation.Error); ok {
+
+			return c.Status(GetCodeFromErr(verr)).
+				JSON(response.Error(verr.Error(), nil, getValidationErrs(verr)...))
+
+		} else if pgErr, ok := err.(*pgconn.PgError); ok {
+			status, e := handledbError(pgErr.Code)
+			parsedCode, _ := strconv.Atoi(pgErr.Code)
+			ers := []response.Errors{
+				{Code: parsedCode, Message: e.Error()},
+			}
+			emessage := "internal Error"
+			return c.Status(status).JSON(response.Error(emessage, ers))
+		}
+
+		// find type of error
+		errcode := GetCodeFromErr(err)
+		if errcode < 500 {
+			return c.Status(errcode).JSON(response.Error(err.Error(), nil))
+		}
+
+		return handleGenericError(c, err)
+
 	}
+}
+
+func perrnondb(c *fiber.Ctx, gerr *perror.Error) error {
+	status, e := getperrorcode(gerr)
+	if perror.Code(gerr).Code() == perror.Code(e).Code() {
+		ers := []response.Errors{
+			{Code: perror.Code(gerr).Code(), Message: perror.Code(gerr).Message()},
+		}
+		return c.Status(status).JSON(response.Error(gerr.Current().Error(), ers))
+	}
+	ers := []response.Errors{
+		{Code: perror.Code(gerr).Code(), Message: perror.Code(gerr).Message()},
+		{Code: perror.Code(e).Code(), Message: perror.Code(e).Message()},
+	}
+
+	return c.Status(status).JSON(response.Error(gerr.Current().Error(), ers))
+
 }
 
 func getperrorcode(e *perror.Error) (i int, er error) {
@@ -74,7 +117,7 @@ func getValidationErrs(err error) []validation.FieldError {
 	return nil
 }
 
-func getCodeFromErr(err error) int {
+func GetCodeFromErr(err error) int {
 	if fErr := new(fiber.Error); errors.As(err, &fErr) {
 		return fErr.Code
 	}
@@ -82,95 +125,109 @@ func getCodeFromErr(err error) int {
 	return fiber.StatusInternalServerError
 }
 
+func pgerr(err string) (int, error) {
+	return fiber.StatusInternalServerError, perror.NewCode(ecode.CodeDbOperationError, err)
+}
+
 func handledbError(sqlState string) (status int, e error) {
+
 	switch {
 	case pgerrcode.IsCardinalityViolation(sqlState):
-		return fiber.StatusBadRequest, perror.NewCode(ecode.CodeDbOperationError, "Cardinality violation")
+		return pgerr("Cardinality violation")
 	case pgerrcode.IsWarning(sqlState):
-		return fiber.StatusOK, perror.NewCode(ecode.CodeDbOperationError, "Warning")
+		return pgerr("Warning")
 	case pgerrcode.IsNoData(sqlState):
-		return fiber.StatusNotFound, perror.NewCode(ecode.CodeDbOperationError, "No data found")
+		return pgerr("No data found")
 	case pgerrcode.IsSQLStatementNotYetComplete(sqlState):
-		return fiber.StatusUnprocessableEntity, perror.NewCode(ecode.CodeDbOperationError, "SQL statement not  complete")
+		return pgerr("SQL statement not yet complete")
 	case pgerrcode.IsConnectionException(sqlState):
-		return fiber.StatusServiceUnavailable, perror.NewCode(ecode.CodeDbOperationError, "Connection exception")
+		return pgerr("Connection exception")
 	case pgerrcode.IsTriggeredActionException(sqlState):
-		return fiber.StatusUnprocessableEntity, perror.NewCode(ecode.CodeDbOperationError, "Triggered action exception")
+		return pgerr("Triggered action exception")
 	case pgerrcode.IsFeatureNotSupported(sqlState):
-		return fiber.StatusNotImplemented, perror.NewCode(ecode.CodeDbOperationError, "Feature not supported")
+		return pgerr("Feature not supported")
 	case pgerrcode.IsInvalidTransactionInitiation(sqlState):
-		return fiber.StatusUnprocessableEntity, perror.NewCode(ecode.CodeDbOperationError, "Invalid transaction initiation")
+		return pgerr("Invalid transaction initiation")
 	case pgerrcode.IsLocatorException(sqlState):
-		return fiber.StatusUnprocessableEntity, perror.NewCode(ecode.CodeDbOperationError, "Locator exception")
+		return pgerr("Locator exception")
 	case pgerrcode.IsInvalidGrantor(sqlState):
-		return fiber.StatusUnprocessableEntity, perror.NewCode(ecode.CodeDbOperationError, "Invalid grantor")
+		return pgerr("Invalid grantor")
 	case pgerrcode.IsInvalidRoleSpecification(sqlState):
-		return fiber.StatusUnprocessableEntity, perror.NewCode(ecode.CodeDbOperationError, "Invalid role specification")
+		return pgerr("Invalid role specification")
 	case pgerrcode.IsDiagnosticsException(sqlState):
-		return fiber.StatusUnprocessableEntity, perror.NewCode(ecode.CodeDbOperationError, "Diagnostics exception")
+		return pgerr("Diagnostics exception")
 	case pgerrcode.IsCaseNotFound(sqlState):
-		return fiber.StatusNotFound, perror.NewCode(ecode.CodeDbOperationError, "Case not found")
+		return pgerr("Case not found")
 	case pgerrcode.IsCardinalityViolation(sqlState):
-		return fiber.StatusBadRequest, perror.NewCode(ecode.CodeDbOperationError, "Cardinality violation")
+		return pgerr("Cardinality violation")
 	case pgerrcode.IsDataException(sqlState):
-		return fiber.StatusUnprocessableEntity, perror.NewCode(ecode.CodeDbOperationError, "Data exception")
+		return pgerr("Data exception")
 	case pgerrcode.IsIntegrityConstraintViolation(sqlState):
-		return fiber.StatusConflict, perror.NewCode(ecode.CodeDbOperationError, "Integrity constraint violation")
+		return pgerr("Integrity constraint violation")
 	case pgerrcode.IsInvalidCursorState(sqlState):
-		return fiber.StatusUnprocessableEntity, perror.NewCode(ecode.CodeDbOperationError, "Invalid cursor state")
+		return pgerr("Invalid cursor state")
 	case pgerrcode.IsInvalidTransactionState(sqlState):
-		return fiber.StatusConflict, perror.NewCode(ecode.CodeDbOperationError, "Invalid transaction state")
+		return pgerr("Invalid transaction state")
 	case pgerrcode.IsInvalidSQLStatementName(sqlState):
-		return fiber.StatusUnprocessableEntity, perror.NewCode(ecode.CodeDbOperationError, "Invalid SQL statement name")
+		return pgerr("Invalid SQL statement name")
 	case pgerrcode.IsTriggeredDataChangeViolation(sqlState):
-		return fiber.StatusUnprocessableEntity, perror.NewCode(ecode.CodeDbOperationError, "Triggered data change violation")
+		return pgerr("Triggered data change violation")
 	case pgerrcode.IsInvalidAuthorizationSpecification(sqlState):
-		return fiber.StatusUnauthorized, perror.NewCode(ecode.CodeDbOperationError, "Invalid authorization specification")
+		return pgerr("Invalid authorization specification")
 	case pgerrcode.IsDependentPrivilegeDescriptorsStillExist(sqlState):
-		return fiber.StatusUnprocessableEntity, perror.NewCode(ecode.CodeDbOperationError, "Dependent privilege descriptors still exist")
+		return pgerr("Dependent privilege descriptors still exist")
 	case pgerrcode.IsInvalidTransactionTermination(sqlState):
-		return fiber.StatusUnprocessableEntity, perror.NewCode(ecode.CodeDbOperationError, "Invalid transaction termination")
+		return pgerr("Invalid transaction termination")
 	case pgerrcode.IsSQLRoutineException(sqlState):
-		return fiber.StatusInternalServerError, perror.NewCode(ecode.CodeDbOperationError, "SQL routine exception")
+		return pgerr("SQL routine exception")
 	case pgerrcode.IsInvalidCursorName(sqlState):
-		return fiber.StatusInternalServerError, perror.NewCode(ecode.CodeDbOperationError, "Invalid cursor name")
+		return pgerr("Invalid cursor name")
 	case pgerrcode.IsExternalRoutineException(sqlState):
-		return fiber.StatusInternalServerError, perror.NewCode(ecode.CodeDbOperationError, "External routine exception")
+		return pgerr("External routine exception")
 	case pgerrcode.IsExternalRoutineInvocationException(sqlState):
-		return fiber.StatusUnprocessableEntity, perror.NewCode(ecode.CodeDbOperationError, "External routine invocation exception")
+		return pgerr("External routine invocation exception")
 	case pgerrcode.IsSavepointException(sqlState):
-		return fiber.StatusUnprocessableEntity, perror.NewCode(ecode.CodeDbOperationError, "Savepoint exception")
+		return pgerr("Savepoint exception")
 	case pgerrcode.IsInvalidCatalogName(sqlState):
-		return fiber.StatusUnprocessableEntity, perror.NewCode(ecode.CodeDbOperationError, "Invalid catalog name")
+		return pgerr("Invalid catalog name")
 	case pgerrcode.IsInvalidSchemaName(sqlState):
-		return fiber.StatusUnprocessableEntity, perror.NewCode(ecode.CodeDbOperationError, "Invalid schema name")
+		return pgerr("Invalid schema name")
 	case pgerrcode.IsTransactionRollback(sqlState):
-		return fiber.StatusConflict, perror.NewCode(ecode.CodeDbOperationError, "Transaction rollback")
+		return pgerr("Transaction rollback")
 	case pgerrcode.IsSyntaxErrororAccessRuleViolation(sqlState):
-		return fiber.StatusBadRequest, perror.NewCode(ecode.CodeDbOperationError, "Syntax error or access rule violation")
+		return pgerr("Syntax error or access rule violation")
 	case pgerrcode.IsWithCheckOptionViolation(sqlState):
-		return fiber.StatusConflict, perror.NewCode(ecode.CodeDbOperationError, "With check option violation")
+		return pgerr("With check option violation")
 	case pgerrcode.IsInsufficientResources(sqlState):
-		return fiber.StatusServiceUnavailable, perror.NewCode(ecode.CodeDbOperationError, "Insufficient resources")
+		return pgerr("Insufficient resources")
 	case pgerrcode.IsProgramLimitExceeded(sqlState):
-		return fiber.StatusServiceUnavailable, perror.NewCode(ecode.CodeDbOperationError, "Program limit exceeded")
+		return pgerr("Program limit exceeded")
 	case pgerrcode.IsObjectNotInPrerequisiteState(sqlState):
-		return fiber.StatusUnprocessableEntity, perror.NewCode(ecode.CodeDbOperationError, "Object not in prerequisite state")
+		return pgerr("Object not in prerequisite state")
 	case pgerrcode.IsOperatorIntervention(sqlState):
-		return fiber.StatusServiceUnavailable, perror.NewCode(ecode.CodeDbOperationError, "Operator intervention")
+		return pgerr("Operator intervention")
 	case pgerrcode.IsSystemError(sqlState):
-		return fiber.StatusInternalServerError, perror.NewCode(ecode.CodeDbOperationError, "System error")
+		return pgerr("System error")
 	case pgerrcode.IsSnapshotFailure(sqlState):
-		return fiber.StatusConflict, perror.NewCode(ecode.CodeDbOperationError, "Snapshot failure")
+		return pgerr("Snapshot failure")
 	case pgerrcode.IsConfigurationFileError(sqlState):
-		return fiber.StatusInternalServerError, perror.NewCode(ecode.CodeDbOperationError, "Configuration file error")
+		return pgerr("Configuration file error")
 	case pgerrcode.IsForeignDataWrapperError(sqlState):
-		return fiber.StatusInternalServerError, perror.NewCode(ecode.CodeDbOperationError, "Foreign data wrapper error")
+		return pgerr("Foreign data wrapper error")
 	case pgerrcode.IsPLpgSQLError(sqlState):
-		return fiber.StatusInternalServerError, perror.NewCode(ecode.CodeDbOperationError, "PL/pgSQL error")
+		return pgerr("PL/pgSQL error")
 	default:
-		return fiber.StatusInternalServerError, perror.NewCode(ecode.CodeDbOperationError, "Unknown database error")
+		return pgerr("Unknown database error")
 
 	}
 
+}
+
+func handleGenericError(c *fiber.Ctx, err error) error {
+	emssage := "internal server error"
+	status := GetCodeFromErr(err)
+	ers := []response.Errors{
+		{Code: 50, Message: "internal error"},
+	}
+	return c.Status(status).JSON(response.Error(emssage, ers))
 }

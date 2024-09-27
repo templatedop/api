@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"github.com/templatedop/api/modules/server/route"
 	"github.com/gofiber/fiber/v2"
+	"github.com/templatedop/api/modules/server/route"
 )
 
 type Handler interface {
@@ -36,6 +36,10 @@ func (b *Base) Middlewares() []fiber.Handler {
 
 func (b *Base) Routes() []route.Route {
 	panic("need to declare routes for controller: " + b.name)
+}
+func (b *Base) AddPrefix(p string) *Base {
+	b.prefix = b.prefix + p
+	return b
 }
 
 func (b *Base) SetPrefix(p string) *Base {

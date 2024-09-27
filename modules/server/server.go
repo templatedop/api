@@ -44,21 +44,16 @@ func (s *Server) Test(req *http.Request, msTimeout ...int) (*http.Response, erro
 }
 
 func (s *Server) registerRoutes() {
-	// For each registry
 	slc.ForEach(s.registries, func(r *registry) {
 		metas := slc.Map(r.routes, r.toMeta)
 
-		// For each handler.Meta
 		slc.ForEach(metas, func(m route.Meta) {
 			handlers := []fiber.Handler{}
 
-			// Controller's middlewares
 			handlers = append(handlers, r.mws...)
 
-			// Route's middlewares
 			handlers = append(handlers, m.Middlewares...)
 
-			// Main Handler
 			handlers = append(handlers, m.Func)
 			s.app.Add(m.Method, m.Path, handlers...)
 		})
@@ -103,18 +98,17 @@ func defaultFiber(
 		ErrorHandler: eh,
 	})
 
-	if serverCfg.Exists("cors") {
-		app.Use(middlewares.CORSMiddleware(serverCfg.Of("cors")))
-	}
-
 	app.Use(
-		middlewares.Log(log),
+
+		middlewares.Timeout(cfg.Of("server")),
+		middlewares.CORSMiddleware(cfg.Of("cors")),
 		middlewares.ContextBinder(log),
 		middlewares.HealthCheck(
 			serverCfg.GetString("healthcheck.endpoints.liveness"),
 			serverCfg.GetString("healthcheck.endpoints.readiness"),
 		),
 		middlewares.Recover(),
+		middlewares.Logger(log),
 	)
 
 	for _, mwg := range groups {

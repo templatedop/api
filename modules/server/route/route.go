@@ -8,15 +8,11 @@ import (
 	"io"
 	"time"
 
-	//"time"
-
 	"net/http"
 	"regexp"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	//"github.com/rs/zerolog"
-	//"github.com/gofiber/fiber/v2/log"
 	"github.com/templatedop/api/diutil/typlect"
 	"github.com/templatedop/api/ecode"
 	perror "github.com/templatedop/api/errors"
@@ -43,8 +39,8 @@ func (c *Context) fromFiberCtx(fiberCtx *fiber.Ctx) {
 	if requestID, ok := cc.Value(middlewares.RequestIDContextKey).(string); ok {
 		ctx = context.WithValue(ctx, middlewares.RequestIDContextKey, requestID)
 	}
-
-	ctxtimeout, cancel := context.WithTimeout(ctx, 30*time.Second)
+	timeout := cc.Value(middlewares.ServerTimeOutKey).(int)
+	ctxtimeout, cancel := context.WithTimeout(ctx, time.Duration(timeout)*time.Second)
 	c.Ctx = ctxtimeout
 	c.cancel = cancel
 	fiberCtx.SetUserContext(ctx)
@@ -100,7 +96,6 @@ func (h *route[Req, Res]) Name(d string) Route {
 	return h
 }
 func build[Req, Res any](f HandlerFunc[Req, Res], defaultStatus ...int) fiber.Handler {
-	//func build[Req, Res any](f HandlerFunc[Req, Res], defaultStatus ...int) fiber.Handler {
 	ds := http.StatusOK
 	if len(defaultStatus) == 1 {
 		ds = defaultStatus[0]
@@ -109,27 +104,14 @@ func build[Req, Res any](f HandlerFunc[Req, Res], defaultStatus ...int) fiber.Ha
 	hasInput := typlect.GetType[Req]() != typlect.TypeNoParam
 
 	return func(c *fiber.Ctx) error {
-		//fmt.Println("Came inside build")
 
 		ctx := &Context{}
 		ctx.fromFiberCtx(c)
 		defer ctx.cancel()
-		// cc := c.UserContext()
-
-		// if logger, ok := cc.Value(middlewares.LoggerContextKey).(*log.Logger); ok {
-		// 	ctx.Log = logger
-		// }
-		// if requestID, ok := cc.Value(middlewares.RequestIDContextKey).(string); ok {
-		// 	ctxTimeOut, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-		// 	defer cancel()
-		// 	//ctx:=context.Background()
-		// 	ctx.Ctx = context.WithValue(ctxTimeOut, middlewares.RequestIDContextKey, requestID)
-		// }
 
 		ll := ctx.Log.ToZerolog().With().Str("Request ID", ctx.Ctx.Value(middlewares.RequestIDContextKey).(string)).Logger()
 		ctx.Log = log.FromZerolog(ll)
 
-		ctx.Log.Info("Request received")
 		var req Req
 
 		hasQuery := len(c.Queries()) > 0
@@ -139,6 +121,7 @@ func build[Req, Res any](f HandlerFunc[Req, Res], defaultStatus ...int) fiber.Ha
 		if hasInput {
 			if hasParam {
 				if err := c.ParamsParser(&req); err != nil {
+
 					return err
 				}
 			}
@@ -166,37 +149,26 @@ func build[Req, Res any](f HandlerFunc[Req, Res], defaultStatus ...int) fiber.Ha
 				}
 			}
 
-			// if err := validation.Validate(req); err != nil {
-			// 	return err
-			// }
 			if err := validation.ValidateStruct(req); err != nil {
 				return err
 			}
 		}
 
 		res, err := f(ctx, req)
+
 		if err != nil {
-			ctx.Log.Info("Error occurred")
+
 			return err
 		}
-
 		var (
 			resp   any
 			status = ds
 		)
-
-		if rp, ok := any(res).(response.Responser); ok {
-			//fmt.Println("Came inside rp")
-			resp = response.Success(rp.ToResponse())
-		} else {
-			//fmt.Println("Came inside else")
-			resp = res
-		}
+		resp = response.Success(res)
 
 		if st, ok := any(res).(response.Stature); ok {
 			status = st.Status()
 		}
-		//fmt.Println("Came before return at build")
 		ctx.Log.ToZerolog().Info().Str("status", fmt.Sprintf("%d", status)).Msg("Response sent")
 		return c.Status(status).JSON(resp)
 	}
@@ -210,12 +182,9 @@ func extractFieldNameFromError(errorMessage string) string {
 	d := re.FindStringSubmatch(errorMessage)
 
 	if len(d) == 0 {
-		//fmt.Println("came inside d:", len(d))
 		rm := regexp.MustCompile(`Mismatch type (\w+) with value (\w+)`)
 		d = rm.FindStringSubmatch(errorMessage)
-		//fmt.Println("Inside len 0:", d)
 		if len(d) == 3 {
-			//fmt.Println("Matches:", d)
 			expectedType := d[1]
 			actualType := d[2]
 			return fmt.Sprintf("One of the field expects is '%s' but sent '%s'", expectedType, actualType)
@@ -223,7 +192,6 @@ func extractFieldNameFromError(errorMessage string) string {
 	}
 
 	if len(d) == 4 {
-		//fmt.Println("Matches:", d)
 		expectedType := d[1]
 		actualType := d[2]
 		fieldName := d[3]
@@ -274,19 +242,7 @@ func malformedRequestErrors(err error) error {
 	case strings.Contains(fieldtype, "invalidUnmarshalError"):
 		return perror.NewCode(ecode.CodeMalformedRequest, "body contains badly-formed JSON")
 	default:
-		//fmt.Println("Came in default")
 		return perror.NewCode(ecode.CodeMalformedRequest, "body contains badly-formed JSON")
 	}
 
 }
-
-// func extractFieldNameFromError(errorMessage string) string {
-//     // Example error message: "Mismatch type string with value number \"at index 100: mismatched type with value\n\n\t    \"password\": 5,\r\n    \"created\n\t."
-//     // Extract the field name "password"
-//     start := strings.Index(errorMessage, "\"") + 1
-//     end := strings.Index(errorMessage[start:], "\"") + start
-//     if start > 0 && end > start {
-//         return errorMessage[start:end]
-//     }
-//     return "unknown"
-// }
