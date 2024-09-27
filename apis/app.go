@@ -10,6 +10,7 @@ import (
 	"github.com/templatedop/api/modules/server/middlewares"
 	"github.com/templatedop/api/modules/swagger"
 	"github.com/templatedop/api/util/slc"
+	"github.com/templatedop/api/modules/server/validation"
 )
 
 type App struct {
@@ -67,9 +68,8 @@ func (app *App) Use(modules ...*module.Module) {
 // func (app *App) applyStdModules(o *options) error {
 func (app *App) applyStdModules() error {
 
-
 	DBModule, e := fxdb.DBModule()
-	if e != nil {		
+	if e != nil {
 		return e
 	}
 	cfgm, e := fxconfig.ConfigModule()
@@ -80,13 +80,14 @@ func (app *App) applyStdModules() error {
 	if e != nil {
 		return e
 	}
-	
+
 	app.Provide(
 		middlewares.ErrHandler,
 	)
 
 	app.Use(
-		cfgm,		
+		validation.InternalValidatorModule,
+		cfgm,
 		lgm,
 		DBModule,
 		swagger.Module(),
