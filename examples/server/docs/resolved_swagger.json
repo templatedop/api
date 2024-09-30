@@ -1,0 +1,521 @@
+{
+  "components": {
+    "schemas": {
+      "Errors": {
+        "properties": {
+          "code": {
+            "format": "int",
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "FieldError": {
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "value": {
+            "format": "interface",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "ListUsersResponse": {
+        "properties": {
+          "meta": {
+            "properties": {
+              "limit": {
+                "format": "uint64",
+                "type": "integer"
+              },
+              "skip": {
+                "format": "uint64",
+                "type": "integer"
+              },
+              "total": {
+                "format": "uint64",
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "users": {
+            "items": {
+              "properties": {
+                "created_at": {
+                  "type": "string"
+                },
+                "created_time": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "id": {
+                  "format": "uint64",
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "RegisterRequest": {
+        "properties": {
+          "check": {
+            "format": "int",
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "created_time": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "check",
+          "created_time"
+        ],
+        "type": "object"
+      },
+      "ResponseError": {
+        "properties": {
+          "errors": {
+            "items": {
+              "properties": {
+                "code": {
+                  "format": "int",
+                  "type": "integer"
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "message": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "validationErrors": {
+            "items": {
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "tag": {
+                  "type": "string"
+                },
+                "value": {
+                  "format": "interface",
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "String": {
+        "type": "string"
+      },
+      "User": {
+        "properties": {
+          "created_at": {
+            "type": "string"
+          },
+          "created_time": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "id": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "meta": {
+        "properties": {
+          "limit": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "skip": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "total": {
+            "format": "uint64",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "contact": {
+      "email": "raghu@gmail.com"
+    },
+    "description": "This is a Delivery Service",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "termsOfService": "https://www.indiapost.gov.in/VAS/Pages/Content/disclaimer.aspx",
+    "title": "Delivery Service",
+    "version": "1.0.0"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/v1/user/register": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "check": {
+                    "format": "int",
+                    "type": "integer"
+                  },
+                  "created_at": {
+                    "type": "string"
+                  },
+                  "created_time": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password",
+                  "check",
+                  "created_time"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true,
+          "x-originalParamName": "body"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "properties": {
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "created_time": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "format": "uint64",
+                          "type": "integer"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "password": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "message": {
+                      "example": "success",
+                      "type": "string"
+                    },
+                    "success": {
+                      "example": true,
+                      "type": "boolean"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Operation"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "errors": {
+                      "items": {
+                        "properties": {
+                          "code": {
+                            "format": "int",
+                            "type": "integer"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "validationErrors": {
+                      "items": {
+                        "properties": {
+                          "field": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "tag": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "format": "interface",
+                            "type": "integer"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Non Succesful Operation"
+          }
+        },
+        "summary": "Register",
+        "tags": [
+          "User Handler"
+        ]
+      }
+    },
+    "/v1/user/users": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "skip",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "properties": {
+                        "meta": {
+                          "properties": {
+                            "limit": {
+                              "format": "uint64",
+                              "type": "integer"
+                            },
+                            "skip": {
+                              "format": "uint64",
+                              "type": "integer"
+                            },
+                            "total": {
+                              "format": "uint64",
+                              "type": "integer"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "users": {
+                          "items": {
+                            "properties": {
+                              "created_at": {
+                                "type": "string"
+                              },
+                              "created_time": {
+                                "type": "string"
+                              },
+                              "email": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "format": "uint64",
+                                "type": "integer"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "password": {
+                                "type": "string"
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "message": {
+                      "example": "success",
+                      "type": "string"
+                    },
+                    "success": {
+                      "example": true,
+                      "type": "boolean"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Operation"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "errors": {
+                      "items": {
+                        "properties": {
+                          "code": {
+                            "format": "int",
+                            "type": "integer"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "validationErrors": {
+                      "items": {
+                        "properties": {
+                          "field": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "tag": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "format": "interface",
+                            "type": "integer"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Non Succesful Operation"
+          }
+        },
+        "summary": "List Users",
+        "tags": [
+          "User Handler"
+        ]
+      }
+    }
+  }
+}

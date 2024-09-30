@@ -11,6 +11,26 @@
     maxconnlifetime: 30
     maxconnidletime: 10
     healthcheckperiod: 5
+  cors:
+    enabled: true
+    alloworigins:
+      - "http://localhost:8089"
+      - "http://localhost:8091"
+    allowmethods:
+      - "GET"
+      - "POST"
+      - "PUT"
+      - "DELETE"
+    allowheaders:
+      - "Authorization"
+      - "Content-Type"
+      - "X-Request-Id"
+    exposeheaders:
+      - "Authorization"
+      - "Content-Type"
+      - "X-Request-Id"
+    maxage: 12
+    allowcredentials: true
   info:
     name: "swagger test"
     version: "1.0.0"
@@ -20,6 +40,7 @@
     terms: "https://www.indiapost.gov.in/VAS/Pages/Content/disclaimer.aspx"
   server:  
     bodylimit: 10485
+    timeout: 10
   log:
     level: "info"
     format: "json"

@@ -6,6 +6,6 @@ import (
 
 var Handlermodule = module.New("handler").Provide(
 
-	NewHelloHandler,
+	NewUserHandler,
 	NewService,
 )

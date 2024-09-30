@@ -38,6 +38,7 @@ type User struct {
 	CreatedAt   zero.String `json:"created_at" db:"created_at" insert:"created_at" select:"-" `
 	UpdatedAt   null.String `json:"-" db:"updated_at" select:"-" `
 	CreatedTime zero.String `json:"created_time" db:"created_time" insert:"created_time" select:"-"`
+	StatusCode  int         `json:"-" db:"-"`
 }
 
 type UserResponse struct {
